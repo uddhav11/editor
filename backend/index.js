@@ -26,25 +26,32 @@ const server= http.createServer(app)
 
 const io= new Server(server, {
     cors: {
-        origin: process.env.CLIENT_URL,
+        origin: 'http://localhost:5173',
         methods: ["GET", "POST"],
         credentials: true,
     },
-    path: '/socket.io',
+    path: '/api/socket.io',
+    transports: ['websocket'],
+    pingTimeout: 60000,
+    pinginvertval: 25000,
 })
 
 
 
-// io.use((socket, next) => {
-//     const token = socket.handshake.auth.token;
-//     if (token) {
-//         socket.token = token; // Store the token in the socket object
-//         next();
-//     } else {
-//         next(new Error('Authentication error'));
-//     }
-//     next()
-// })
+io.use((socket, next) => {
+    const token = socket.handshake.auth.token;
+    if (!token) {
+        return next(new Error('Authentication error'));
+        
+    } 
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return next(new Error('Invalid token'));
+        }
+        socket.user = decoded; 
+        next();
+    });
+})
 
 
 

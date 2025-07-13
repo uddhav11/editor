@@ -1,28 +1,21 @@
-import {io} from 'socket.io-client';
+import { io } from 'socket.io-client';
 
-let socket;
+const socket = io('http://localhost:4000', {
+  path: '/api/socket.io',
+  withCredentials: true,
+  transports: ['websocket'],
+  auth: {
+    token: localStorage.getItem('token')
+  }
+});
 
-export const connectSocket= (token) => {
-    console.log(import.meta.REACT_APP_API_URL);
-    socket= io(import.meta.REACT_APP_API_URL, {
-        auth: {token: localStorage.getItem('token') || token},
-        withCredentials: true,
-        path: '/socket.io',
-    });
-    return socket;
-}
+// Debugging
+socket.on('connect', () => {
+  console.log('Connected with ID:', socket.id);
+});
 
-export const getSocket=() => {
-    if(!socket) {
-        throw new Error('Socket not connected')
+socket.on('connect_error', (err) => {
+  console.error('Connection error:', err.message);
+});
 
-    }
-    return socket;
-}
-
-
-export const disconnectSocket=() => {
-    if(socket){
-        socket.disconnect();
-    }
-}
+export default socket;

@@ -5,10 +5,11 @@ import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { oneDark } from '@codemirror/theme-one-dark';
 import UserCursor from './UserCursor';
+import {useRoom} from '../context/RoomContext';
 
 const CollaborativeEditor = () => {
+    const {socket} = useRoom();
   const { roomId } = useParams();
-  const socket = useSocket();
   const [code, setCode] = useState('');
   const [cursorPositions, setCursorPositions] = useState({});
   const editorRef = useRef();

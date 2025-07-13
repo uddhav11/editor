@@ -5,13 +5,14 @@ import App from "./App.jsx";
 import { Provider } from "react-redux";
 import { store } from "./redux/store.js";
 import { SocketProvider } from "./context/SocketContext.jsx";
+import { RoomProvider } from "./context/RoomContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider store={store}>
-      <SocketProvider>
+      <RoomProvider>
         <App />
-      </SocketProvider>
+      </RoomProvider>
     </Provider>
   </StrictMode>
 );
