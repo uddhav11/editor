@@ -255,15 +255,6 @@
 //   LeaveRoom, //
 // };
 
-
-
-
-
-
-
-
-
-
 const Room = require("../models/Room");
 const User = require("../models/userModel");
 
@@ -336,19 +327,15 @@ const JoinRoomRequest = async (req, res) => {
   }
 };
 
-
 const getJoinRequest = async (req, res) => {
   try {
     const { roomId } = req.params;
     const userId = req.user._id;
-    
 
-    const room = await Room.findById(roomId)
-      .populate({
-        path: "joinRequests.user",
-        select: "username profilepic email userCode", // populate useful fields
-      });
-
+    const room = await Room.findById(roomId).populate({
+      path: "joinRequests.user",
+      select: "username profilepic email userCode", // populate useful fields
+    });
 
     if (!room) return res.status(404).json({ message: "Room not found" });
 
@@ -365,9 +352,6 @@ const getJoinRequest = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
-
-
 
 const HandleJoinRequest = async (req, res) => {
   try {
@@ -520,43 +504,115 @@ const handleInvite = async (req, res) => {
   }
 };
 
+// const LeaveRoom = async (req, res) => {
+//   try {
+//     const { roomId } = req.params;
+//     const userId = req.user._id;
+
+//     const room = await Room.findByIdAndUpdate(
+//       roomId,
+//       {
+//         $pull: {
+//           members: {
+//             user: userId,
+//             username: req.user.username,
+//             profilepic: req.user.profilepic,
+//           },
+//           joinRequests: { user: userId },
+//         },
+//       },
+//       { new: true }
+//     );
+
+//     if (!room) return res.status(404).json({ message: "Room not found" });
+
+//     await User.findByIdAndUpdate(userId, {
+//       $pull: {
+//         joinedRooms: { roomId: roomId },
+//         joinRequests: { roomId },
+//       },
+//     });
+
+//     // Handle admin reassignment if needed
+//     const hasAdmin = room.members.some((m) => m.isAdmin);
+//     if (!hasAdmin && room.members.length > 0) {
+//       room.members[0].isAdmin = true;
+//       await room.save();
+//     }
+
+//     // Delete room if empty
+//     if (room.members.length === 0) {
+//       await Room.findByIdAndDelete(roomId);
+//       await User.updateMany(
+//         { createdRooms: roomId },
+//         { $pull: { createdRooms: roomId } }
+//       );
+//     }
+
+//     res.json({ message: "Left room successfully", roomId });
+//   } catch (error) {
+//     console.error("Error in LeaveRoom:", error);
+//     res.status(500).json({ error: "Server error" });
+//   }
+// };
+
 const LeaveRoom = async (req, res) => {
   try {
     const { roomId } = req.params;
     const userId = req.user._id;
 
-    const room = await Room.findByIdAndUpdate(
-      roomId,
-      {
-        $pull: {
-          members: {
-            user: userId,
-            username: req.user.username,
-            profilepic: req.user.profilepic,
-          },
-          joinRequests: { user: userId },
-        },
-      },
-      { new: true }
+    // find the room
+    const room = Room.findById(roomId);
+    if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+    // find the leaving member
+    const leavingMember = room.members.find(
+      (m) => m.user.toString() === userId.toString()
     );
 
-    if (!room) return res.status(404).json({ message: "Room not found" });
+    if (!leavingMember) {
+      return res
+        .ststus(404)
+        .json({ message: "you are not a member of this room" });
+    }
+    // removing the member from the room
+    room.members = room.members.filter(
+      (m) => m.user.toString() !== userId.toString()
+    );
+    // removing if there is joinRequests
+    room.joinRequests = room.joinRequests.filter(
+      (m) => m.user.toString() !== userId.toString()
+    );
+// if leaving member is admin the we need a new admin
+    if (leavingMember.isAdmin && room.members.length > 0) {
+      let newAdmin = null;
+      for (let m of room.members) {
+        // Check that this member exists in User collection
+        const existingUser = await User.findById(m.user);
+        if (existingUser) {
+          newAdmin = m;
+          break;
+        }
+    }
+    if (newAdmin) {
+        newAdmin.isAdmin = true;
+      } else {
+        console.warn("No valid user found to assign as new admin.");
+      }
+
+  }
+
+  // saving the new room config
+    await room.save();
 
     await User.findByIdAndUpdate(userId, {
       $pull: {
         joinedRooms: { roomId: roomId },
-        joinRequests: { roomId },
+        joinRequests: { roomId: roomId },
       },
     });
 
-    // Handle admin reassignment if needed
-    const hasAdmin = room.members.some((m) => m.isAdmin);
-    if (!hasAdmin && room.members.length > 0) {
-      room.members[0].isAdmin = true;
-      await room.save();
-    }
-
-    // Delete room if empty
     if (room.members.length === 0) {
       await Room.findByIdAndDelete(roomId);
       await User.updateMany(
@@ -565,7 +621,7 @@ const LeaveRoom = async (req, res) => {
       );
     }
 
-    res.json({ message: "Left room successfully", roomId });
+    res.status(200).json({ message: "Left room successfully", roomId });
   } catch (error) {
     console.error("Error in LeaveRoom:", error);
     res.status(500).json({ error: "Server error" });
@@ -592,7 +648,10 @@ const getRoom = async (req, res) => {
 
     const createdRooms = user.createdRooms;
 
-    const joinedRooms = user.joinedRooms.map((entry) => {
+    const joinedRooms = user.joinedRooms
+    .filter(entry => entry.roomId !== null) 
+    .map((entry) => {
+      
       return {
         _id: entry.roomId._id,
         name: entry.roomId.name,

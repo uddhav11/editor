@@ -30,6 +30,7 @@ const roomSchema = new mongoose.Schema(
         },
         username: {
           type: String,
+          default: 'User'
         },
         profilepic: {
           type: String,

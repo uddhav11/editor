@@ -112,7 +112,7 @@ axios.defaults.baseURL = "http://localhost:4000"; // the base URL as needed
 // Async Thunks
 export const createRoom = createAsyncThunk(
   "room/createRoom",
-  async ({ name, isPrivate }, { rejectWithValue }) => {
+  async ({ name, isPrivate, language }, { rejectWithValue }) => {
     try {
       const res = await axios.post(
         "/api/rooms/create",

@@ -1,18 +1,50 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getInvites, handleInvite } from "../redux/roomSlice";
+import { getInvites, getRooms, handleInvite } from "../redux/roomSlice";
 
 const InvitesPage = () => {
   const dispatch = useDispatch();
   const invites = useSelector((state) => state.room.invites);
   const status = useSelector((state) => state.room.status);
 
+
+  // const handleSubmit = async (e) => {
+  //     e.preventDefault();
+  //     if (!name.trim()) return;
+  
+  //     try {
+  //       // Dispatch createRoom action and wait for it to complete
+  //       const result = await dispatch(createRoom({ name, isPrivate, language }));
+        
+  //       // Only proceed if room creation was successful
+  //       if (createRoom.fulfilled.match(result)) {
+  //         // Refresh the rooms list
+  //         await dispatch(getRooms());
+  //         closeModal();
+  //       }
+  //     } catch (error) {
+  //       console.error("Error creating room:", error);
+  //     }
+  //   };
+  
+
+
   useEffect(() => {
     dispatch(getInvites());
   }, [dispatch]);
 
   const handleAction = (inviteId, action) => {
-    dispatch(handleInvite({ inviteId, action }));
+    try {
+      const result= dispatch(handleInvite({ inviteId, action }));
+      if (handleInvite.fulfilled.match(result)) {
+        // Optionally, you can refresh the invites list after handling the action
+        dispatch(getRooms());
+      }
+    //   if (result.meta.requestStatus === 'fulfilled') {
+    } catch (error) {
+      console.error('Error in invite page:-', error)
+    }
+    // dispatch(handleInvite({ inviteId, action }));
   };
 
   return (
