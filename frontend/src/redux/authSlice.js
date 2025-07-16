@@ -4,7 +4,7 @@ import axios from "axios";
 import { useRouteError } from "react-router-dom";
 // import { useNavigate } from "react-router-dom";
 
-axios.defaults.baseURL = "http://localhost:4000"; // the base URL as needed
+axios.defaults.baseURL = "https://editor-1-kjah.onrender.com"; // the base URL as needed
 axios.defaults.withCredentials = true;
 // const navigate = useNavigate();
 

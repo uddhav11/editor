@@ -107,7 +107,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
-axios.defaults.baseURL = "http://localhost:4000"; // the base URL as needed
+axios.defaults.baseURL = "https://editor-1-kjah.onrender.com"; // the base URL as needed
 
 // Async Thunks
 export const createRoom = createAsyncThunk(
