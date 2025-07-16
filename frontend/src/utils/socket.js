@@ -25,7 +25,7 @@
 
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:4000", {
+const socket = io("https://editor-1-kjah.onrender.com", {
   withCredentials: true,
   path: "/socket.io",
   transports: ["websocket", "polling"], // allow fallback
