@@ -206,7 +206,7 @@ const port = process.env.PORT || 4000;
 // Middlewares
 app.use(express.json());
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: "editor-git-main-uddhav11s-projects.vercel.app",
   credentials: true
 }));
 app.use(cookieParser());
@@ -217,7 +217,7 @@ connectDB();
 // Socket.IO Configuration
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "editor-git-main-uddhav11s-projects.vercel.app",
     methods: ["GET", "POST"],
     credentials: true
   },
