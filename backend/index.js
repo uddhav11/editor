@@ -203,10 +203,14 @@ const app = express();
 const server = http.createServer(app);
 const port = process.env.PORT || 4000;
 
+
+
 // Middlewares
 app.use(express.json());
 app.use(cors({
-  origin: "editor-git-main-uddhav11s-projects.vercel.app",
+  origin: ["https://editor-uddhav11s-projects.vercel.app ",
+"https://editor-eta-eight.vercel.app",
+"https://editor-git-main-uddhav11s-projects.vercel.app"],
   credentials: true
 }));
 app.use(cookieParser());
@@ -217,7 +221,9 @@ connectDB();
 // Socket.IO Configuration
 const io = new Server(server, {
   cors: {
-    origin: "editor-git-main-uddhav11s-projects.vercel.app",
+    origin: ["https://editor-uddhav11s-projects.vercel.app ",
+"https://editor-eta-eight.vercel.app",
+"https://editor-git-main-uddhav11s-projects.vercel.app"],
     methods: ["GET", "POST"],
     credentials: true
   },
